@@ -1,3 +1,16 @@
 spring:
   main:
     web-application-type: NONE
+  datasource:
+    driverClassName: org.sqlite.JDBC
+    url: jdbc:sqlite:file:${user.home}/.thunderbird/${thunderbird.profile}/calendar-data/cache.sqlite
+    username: ""
+    password: ""
+
+hibernate:
+  hbm2ddl:
+    auto: none
+  dialect: org.hibernate.dialect.SQLiteDialect
+
+
+

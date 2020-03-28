@@ -5,6 +5,11 @@ build/
 !**/src/main/**
 !**/src/test/**
 
+### Config files ###
+**/client_secrets.json
+**/google.properties
+**/application-default.yml
+
 ### STS ###
 .apt_generated
 .classpath
