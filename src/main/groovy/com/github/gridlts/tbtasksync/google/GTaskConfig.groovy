@@ -10,8 +10,8 @@ import org.springframework.context.annotation.PropertySource
 @ConfigurationProperties(prefix = "gtasks")
 class GTaskConfig {
 
-    private String apiKey;
-    private String clientId;
-    private String clientKey;
-    private String Scope;
+    String apiKey;
+    String clientId;
+    String clientKey;
+    String Scope;
 }

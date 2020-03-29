@@ -1,0 +1,4 @@
+gtasks.api_key=<api key>
+gtasks.client_id=
+gtasks.client_key=
+gtasks.scope=https://www.googleapis.com/auth/tasks.readonly

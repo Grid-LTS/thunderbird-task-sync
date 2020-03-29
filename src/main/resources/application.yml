@@ -12,5 +12,3 @@ hibernate:
     auto: none
   dialect: org.hibernate.dialect.SQLiteDialect
 
-
-

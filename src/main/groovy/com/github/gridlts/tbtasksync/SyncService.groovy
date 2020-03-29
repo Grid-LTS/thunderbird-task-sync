@@ -1,5 +1,6 @@
 package com.github.gridlts.tbtasksync
 
+
 import com.github.gridlts.tbtasksync.domain.TaskEntity
 import com.github.gridlts.tbtasksync.google.GTaskRepo
 import com.github.gridlts.tbtasksync.google.GoogleAuthorization
@@ -12,8 +13,11 @@ class SyncService {
 
     GTaskRepo gTaskRepo;
 
-    SyncService(GTaskRepo gTaskRepo) {
+    GoogleAuthorization googleAuth
+
+    SyncService(GTaskRepo gTaskRepo, GoogleAuthorization googleAuth) {
         this.gTaskRepo = gTaskRepo
+        this.googleAuth = googleAuth
     }
 
     @Transactional
@@ -22,7 +26,7 @@ class SyncService {
         tasks.forEach{
             println(it)
         }
-        def googleAuth = new GoogleAuthorization();
+
         Credential creds = googleAuth.main()
         def lists = gTaskRepo.getTaskLists(creds.accessToken)
         println(lists)

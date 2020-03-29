@@ -6,30 +6,36 @@ import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.json.JsonFactory
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.tasks.TasksScopes
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
+@Component
 class GoogleAuthorization {
 
-    private dataStoreFactory;
+    FileDataStoreFactory dataStoreFactory
 
-    private httpTransport;
+    NetHttpTransport httpTransport
 
-    private static final File DATA_STORE_DIR =
-            new File(System.getProperty("user.home"), "/var/kanban-hub");
+    @Autowired
+    GTaskConfig gTaskConfig
 
-    private Integer port = 7100
+    static final File DATA_STORE_DIR =
+            new File(System.getProperty("user.home"), "/var/kanban-hub")
+
+    Integer port = 7100
 
 
     def Credential authorize() throws Exception {
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(GTaskRepo.JSON_FACTORY,
-                new InputStreamReader(GoogleAuthorization.class.getResourceAsStream("/client_secrets.json")));
+        GoogleClientSecrets clientSecrets = new GoogleClientSecrets()
+        clientSecrets.setInstalled(new GoogleClientSecrets.Details().setClientId(gTaskConfig.clientId)
+                .setClientSecret(gTaskConfig.clientKey))
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, GTaskRepo.JSON_FACTORY, clientSecrets,
                 Collections.singleton(TasksScopes.TASKS_READONLY)).setDataStoreFactory(
-                dataStoreFactory).build();
+                dataStoreFactory).build()
         // authorize
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setPort(7100).build()).authorize("user");
     }
