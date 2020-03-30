@@ -13,6 +13,7 @@ class TaskEntity {
     long timeModified
     Long timeCompleted
     Long timeDue
+    int flags
     String title
     CalStatus status
     static hasMany = [descriptions: Description]

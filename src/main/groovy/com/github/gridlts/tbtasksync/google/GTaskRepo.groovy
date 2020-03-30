@@ -12,12 +12,18 @@ import com.google.api.services.tasks.model.TaskLists
 import org.springframework.stereotype.Service
 
 import java.security.GeneralSecurityException
+import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class GTaskRepo {
 
     static Long MAX_RESULTS = 10000L;
+
+    final static DateTimeFormatter RFC_3339_FORMATTER = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            .withZone(ZoneId.of("UTC"));
 
     static JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance()
     static String APPLICATION_NAME = "Thunderbird Task Sync"
@@ -74,8 +80,21 @@ class GTaskRepo {
         return tasksForTaskList;
     }
 
+    def List<Task> getDeletedTasksForTaskList(String taskListId)
+            throws IOException {
+        com.google.api.services.tasks.model.Tasks result = this.tasksService.tasks().list(taskListId)
+                .setMaxResults(MAX_RESULTS)
+                .setShowCompleted(false)
+                .setShowDeleted(true)
+                .execute()
+        List<Task> tasksForTaskList = result.getItems();
+        if (tasksForTaskList == null) {
+            tasksForTaskList = new ArrayList<>();
+        }
+        return tasksForTaskList;
+    }
 
-    public List<Task> getCompletedTasksForTaskList(String taskListId, ZonedDateTime newerThanDateTime)
+    def List<Task> getCompletedTasksForTaskList(String taskListId, ZonedDateTime newerThanDateTime)
             throws IOException {
         com.google.api.services.tasks.model.Tasks result = this.tasksService.tasks().list(taskListId)
                 .setMaxResults(MAX_RESULTS)
@@ -88,5 +107,9 @@ class GTaskRepo {
             tasksForTaskList = new ArrayList<>();
         }
         return tasksForTaskList;
+    }
+
+    def static String convertZoneDateTimeToRFC3339Timestamp(ZonedDateTime zonedDateTime) {
+        return zonedDateTime.format(RFC_3339_FORMATTER);
     }
 }
