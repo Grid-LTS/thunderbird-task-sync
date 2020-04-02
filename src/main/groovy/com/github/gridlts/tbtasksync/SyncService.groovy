@@ -24,6 +24,8 @@ class SyncService {
     String accessToken
     Map<CalStatus, Integer> counter = [completed: 0, deleted: 0, duplicate: 0]
     Map<String, TaskEntity> duplicatesMap = [:]
+    Map<String, TaskEntity> savedTasksMap = [:]
+    Map<String, String> tasksList = [:]
 
     SyncService(GTaskRepo gTaskRepo, GoogleAuthorization googleAuth) {
         this.gTaskRepo = gTaskRepo
@@ -32,6 +34,9 @@ class SyncService {
 
     @Transactional
     def void sync() {
+        TaskEntity.findAll().each {
+            savedTasksMap[it.id] = it
+        }
         Credential creds = googleAuth.main()
         accessToken = creds.accessToken
         gTaskRepo.init(accessToken)
@@ -49,6 +54,13 @@ class SyncService {
         println("Found ${counter.completed} tasks that were not in state completed.")
         println("Found ${counter.duplicate} tasks that were duplicated.")
 
+        List<TaskEntity> obsoleteTasks = savedTasksMap.values().findAll {
+            this.tasksList.keySet().contains(it.calId)
+        }
+        println("Found ${obsoleteTasks.size()} that are not available upstream and are deleted.")
+        obsoleteTasks.forEach {
+            it.delete(flush: true)
+        }
     }
 
     def void removeDuplicates(Task task) {
@@ -82,12 +94,18 @@ class SyncService {
     @Transactional
     def void syncTasks(String taskListId) {
         List<Task> openTasks = gTaskRepo.getOpenTasksForTaskList(taskListId)
+        if (openTasks.size() > 0) {
+            def firstTask = TaskEntity.findById(openTasks[0].getId())
+            addTaskListMapping(firstTask.calId, taskListId)
+        }
         openTasks.forEach {
             removeDuplicates(it)
+            savedTasksMap.remove(it.getId())
         }
         List<Task> deletedTasks = gTaskRepo.getDeletedTasksForTaskList(taskListId)
         deletedTasks.forEach {
             if (it.getDeleted()) {
+                savedTasksMap.remove(it.getId())
                 def savedTask = TaskEntity.findById(it.getId())
                 if (savedTask != null) {
                     counter.deleted++
@@ -96,8 +114,13 @@ class SyncService {
             }
         }
         List<Task> completedTasks = gTaskRepo.getCompletedTasksForTaskList(taskListId, getOldEnoughDate())
+        if (completedTasks.size() > 0) {
+            def firstTask = TaskEntity.findById(completedTasks[0].getId())
+            addTaskListMapping(firstTask.calId, taskListId)
+        }
         completedTasks.forEach {
             if (it.getStatus() == "completed") {
+                savedTasksMap.remove(it.getId())
                 def savedTask = TaskEntity.findById(it.getId())
                 if (!savedTask) {
                     return
@@ -110,6 +133,12 @@ class SyncService {
                 }
                 removeDuplicates(it)
             }
+        }
+    }
+
+    def void addTaskListMapping(String calId, String gTaskListId) {
+        if (!this.tasksList.containsKey(calId)) {
+            this.tasksList[calId] = gTaskListId
         }
     }
 
