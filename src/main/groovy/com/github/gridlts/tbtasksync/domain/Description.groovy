@@ -28,8 +28,13 @@ class Description implements Serializable {
             recurrenceIdTz column: 'recurrence_id_tz'
             task column: "item_id"
         }
-        id composite: ['task', 'calId']
+        id composite: ['task', 'calId', 'propertiesKey']
         propertiesKey enumType: "identity"
+    }
+
+    static constraints = {
+        recurrenceId nullable: true
+        recurrenceIdTz nullable: true
     }
 
     boolean equals(other) {
@@ -38,19 +43,17 @@ class Description implements Serializable {
         }
         Description that = (Description) other;
         return new EqualsBuilder()
-                .append(this.value, that.value)
                 .append(this.calId, that.calId)
-                .append(this.recurrenceId, that.recurrenceId)
-                .append(this.recurrenceIdTz, that.recurrenceIdTz)
+                .append(this.task, that.task)
+                .append(this.propertiesKey, that.propertiesKey)
                 .isEquals()
     }
 
     int hashCode() {
         def builder = new HashCodeBuilder()
-        builder.append value
         builder.append calId
-        builder.append recurrenceId
-        builder.append recurrenceIdTz
+        builder.append task
+        builder.append propertiesKey
         builder.toHashCode()
     }
 }

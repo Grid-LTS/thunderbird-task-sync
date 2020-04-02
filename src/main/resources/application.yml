@@ -3,7 +3,6 @@ spring:
     web-application-type: NONE
   datasource:
     driverClassName: org.sqlite.JDBC
-    url: jdbc:sqlite:file:${user.home}/.thunderbird/${thunderbird.profile}/calendar-data/cache.sqlite
     username: ""
     password: ""
 

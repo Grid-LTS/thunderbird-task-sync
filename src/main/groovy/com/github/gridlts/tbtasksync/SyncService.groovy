@@ -22,7 +22,8 @@ class SyncService {
 
     GoogleAuthorization googleAuth
     String accessToken
-    Map<CalStatus, Integer> counter = [completed: 0, deleted: 0]
+    Map<CalStatus, Integer> counter = [completed: 0, deleted: 0, duplicate: 0]
+    Map<String, TaskEntity> duplicatesMap = [:]
 
     SyncService(GTaskRepo gTaskRepo, GoogleAuthorization googleAuth) {
         this.gTaskRepo = gTaskRepo
@@ -30,7 +31,7 @@ class SyncService {
     }
 
     @Transactional
-    def void sync(){
+    def void sync() {
         Credential creds = googleAuth.main()
         accessToken = creds.accessToken
         gTaskRepo.init(accessToken)
@@ -38,30 +39,88 @@ class SyncService {
         lists.forEach {
             syncTasks(it.getId())
         }
-    }
-
-    def void syncTasks(String taskListId) {
-        List<Task> deletedTasks = gTaskRepo.getDeletedTasksForTaskList(taskListId)
-        deletedTasks.forEach{
-            if (it.getDeleted()) {
-                def savedTask = TaskEntity.findById(it.getId())
-                counter.deleted++
-                savedTask.delete()
-            }
-        }
-        List<Task> completedTasks = gTaskRepo.getCompletedTasksForTaskList(taskListId, getOldEnoughDate())
-        completedTasks.forEach{
-            if (it.getCompleted()) {
-                def savedTask = TaskEntity.findById(it.getId())
-                if (savedTask.status != CalStatus.COMPLETED) {
-                    savedTask.status = CalStatus.COMPLETED
-                    savedTask.save()
-                    counter.completed++
-                }
-            }
+        duplicatesMap.each { key, value ->
+            println(value)
+            TaskEntity.executeUpdate("delete TaskEntity t where t.id = :id and t.calId = :calId and t.timeCreated = :timeCreated",
+                    [id: value.id, calId: value.calId, timeCreated: value.timeCreated])
+            counter.duplicate++
         }
         println("Found ${counter.deleted} tasks that were not deleted.")
         println("Found ${counter.completed} tasks that were not in state completed.")
+        println("Found ${counter.duplicate} tasks that were duplicated.")
+
+    }
+
+    def void removeDuplicates(Task task) {
+        def duplicates = TaskEntity.executeQuery(
+                "select new map(t.calId as calId, t.id as id, t.timeCreated as timeCreated) from TaskEntity t where t.title = :title",
+                [title: task.getTitle()])
+        if (duplicates.size() == 1) {
+            return
+        }
+        TaskEntity keepTask = duplicates.find { it.id == task.getId() }
+        if (!keepTask) {
+            return
+        }
+        if (duplicatesMap.containsKey(keepTask.id)) {
+            duplicatesMap.remove(keepTask.id)
+            return
+        }
+        // obvious duplicates
+        def obvious = duplicates.findAll { it.id != keepTask.id }
+        obvious.forEach {
+            duplicatesMap[it.id] = it
+        }
+        // find max
+        def identicals = duplicates.findAll { it.id == keepTask.id }
+        long maxTime = identicals.collect { it.timeCreated }.max()
+        identicals.findAll { it.timeCreated != maxTime }.forEach {
+            duplicatesMap[it.id] = it
+        }
+    }
+
+    @Transactional
+    def void syncTasks(String taskListId) {
+        List<Task> openTasks = gTaskRepo.getOpenTasksForTaskList(taskListId)
+        openTasks.forEach {
+            removeDuplicates(it)
+        }
+        List<Task> deletedTasks = gTaskRepo.getDeletedTasksForTaskList(taskListId)
+        deletedTasks.forEach {
+            if (it.getDeleted()) {
+                def savedTask = TaskEntity.findById(it.getId())
+                if (savedTask != null) {
+                    counter.deleted++
+                    savedTask.delete(flush: true)
+                }
+            }
+        }
+        List<Task> completedTasks = gTaskRepo.getCompletedTasksForTaskList(taskListId, getOldEnoughDate())
+        completedTasks.forEach {
+            if (it.getStatus() == "completed") {
+                def savedTask = TaskEntity.findById(it.getId())
+                if (!savedTask) {
+                    return
+                }
+                if (savedTask.status != CalStatus.COMPLETED) {
+                    savedTask.status = CalStatus.COMPLETED
+                    savedTask.timeCompleted = parseRFC_3339Date(it.getCompleted().toStringRfc3339())
+                    savedTask.save(flush: true)
+                    counter.completed++
+                }
+                removeDuplicates(it)
+            }
+        }
+    }
+
+    def static Long parseRFC_3339Date(String dateTimeRfc3339) {
+
+        String RFC_3339_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        DateTimeFormatter RFC_3339_FORMATTER = DateTimeFormatter
+                .ofPattern(RFC_3339_PATTERN)
+                .withZone(ZoneId.of("UTC"))
+        def theDateTime = ZonedDateTime.parse(dateTimeRfc3339, RFC_3339_FORMATTER)
+        return theDateTime.toInstant().toEpochMilli() * 1000
     }
 
     def static ZonedDateTime getOldEnoughDate() {

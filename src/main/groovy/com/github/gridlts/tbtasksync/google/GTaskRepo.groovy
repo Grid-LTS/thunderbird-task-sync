@@ -19,17 +19,17 @@ import java.time.format.DateTimeFormatter
 @Service
 class GTaskRepo {
 
-    static Long MAX_RESULTS = 10000L;
+    static Long MAX_RESULTS = 10000L
 
     final static DateTimeFormatter RFC_3339_FORMATTER = DateTimeFormatter
             .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-            .withZone(ZoneId.of("UTC"));
+            .withZone(ZoneId.of("UTC"))
 
     static JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance()
     static String APPLICATION_NAME = "Thunderbird Task Sync"
 
-    Tasks tasksService;
-    String accessToken;
+    Tasks tasksService
+    String accessToken
     GTaskRepo() {
     }
 
@@ -41,30 +41,30 @@ class GTaskRepo {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             this.tasksService = new Tasks.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
                     .setApplicationName(APPLICATION_NAME)
-                    .build();
+                    .build()
         }
     }
 
     def List<TaskList> getTaskLists(String accessToken) throws IOException, GeneralSecurityException {
         this.init(accessToken)
-        return this.getTaskLists();
+        return this.getTaskLists()
     }
 
     def List<TaskList> getTaskLists() throws IOException {
         TaskLists result = this.tasksService.tasklists().list()
                 .setMaxResults(10L)
-                .execute();
-        List<TaskList> taskLists = result.getItems();
+                .execute()
+        List<TaskList> taskLists = result.getItems()
         if (taskLists == null) {
-            taskLists = new ArrayList<>();
+            taskLists = new ArrayList<>()
         }
-        return taskLists;
+        return taskLists
     }
 
     def List<Task> getTasksForTaskListEntry(String taskListId, String accessToken)
             throws IOException, GeneralSecurityException {
         this.init(accessToken)
-        return this.getOpenTasksForTaskList(taskListId);
+        return this.getOpenTasksForTaskList(taskListId)
     }
 
     def List<Task> getOpenTasksForTaskList(String taskListId)
@@ -72,12 +72,12 @@ class GTaskRepo {
         com.google.api.services.tasks.model.Tasks result = this.tasksService.tasks().list(taskListId)
                 .setMaxResults(MAX_RESULTS)
                 .setShowCompleted(false)
-                .execute();
-        List<Task> tasksForTaskList = result.getItems();
+                .execute()
+        List<Task> tasksForTaskList = result.getItems()
         if (tasksForTaskList == null) {
-            tasksForTaskList = new ArrayList<>();
+            tasksForTaskList = new ArrayList<>()
         }
-        return tasksForTaskList;
+        return tasksForTaskList
     }
 
     def List<Task> getDeletedTasksForTaskList(String taskListId)
@@ -87,11 +87,15 @@ class GTaskRepo {
                 .setShowCompleted(false)
                 .setShowDeleted(true)
                 .execute()
-        List<Task> tasksForTaskList = result.getItems();
+        List<Task> tasksForTaskList = result.getItems()
         if (tasksForTaskList == null) {
-            tasksForTaskList = new ArrayList<>();
+            tasksForTaskList = new ArrayList<>()
         }
-        return tasksForTaskList;
+        return tasksForTaskList
+    }
+
+    def Task queryTask(String taskListId, String taskId) {
+        return this.tasksService.tasks().get(taskListId, taskId).execute()
     }
 
     def List<Task> getCompletedTasksForTaskList(String taskListId, ZonedDateTime newerThanDateTime)
@@ -101,15 +105,15 @@ class GTaskRepo {
                 .setCompletedMin(convertZoneDateTimeToRFC3339Timestamp(newerThanDateTime))
                 .setShowCompleted(true)
                 .setShowHidden(true)
-                .execute();
-        List<Task> tasksForTaskList = result.getItems();
+                .execute()
+        List<Task> tasksForTaskList = result.getItems()
         if (tasksForTaskList == null) {
-            tasksForTaskList = new ArrayList<>();
+            tasksForTaskList = new ArrayList<>()
         }
         return tasksForTaskList;
     }
 
     def static String convertZoneDateTimeToRFC3339Timestamp(ZonedDateTime zonedDateTime) {
-        return zonedDateTime.format(RFC_3339_FORMATTER);
+        return zonedDateTime.format(RFC_3339_FORMATTER)
     }
 }
