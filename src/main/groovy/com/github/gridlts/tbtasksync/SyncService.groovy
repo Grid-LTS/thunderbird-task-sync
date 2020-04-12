@@ -17,8 +17,7 @@ import java.time.format.DateTimeFormatter
 @Component
 class SyncService {
 
-
-    GTaskRepo gTaskRepo;
+    GTaskRepo gTaskRepo
 
     GoogleAuthorization googleAuth
     String accessToken
@@ -33,7 +32,7 @@ class SyncService {
     }
 
     @Transactional
-    def void sync() {
+    void sync() {
         TaskEntity.findAll().each {
             savedTasksMap[it.id] = it
         }
@@ -59,11 +58,12 @@ class SyncService {
         }
         println("Found ${obsoleteTasks.size()} that are not available upstream and are deleted.")
         obsoleteTasks.forEach {
+            println(it.title)
             it.delete(flush: true)
         }
     }
 
-    def void removeDuplicates(Task task) {
+    void removeDuplicates(Task task) {
         def duplicates = TaskEntity.executeQuery(
                 "select new map(t.calId as calId, t.id as id, t.timeCreated as timeCreated) from TaskEntity t where t.title = :title",
                 [title: task.getTitle()])
@@ -92,7 +92,7 @@ class SyncService {
     }
 
     @Transactional
-    def void syncTasks(String taskListId) {
+    void syncTasks(String taskListId) {
         List<Task> openTasks = gTaskRepo.getOpenTasksForTaskList(taskListId)
         if (openTasks.size() > 0) {
             def firstTask = TaskEntity.findById(openTasks[0].getId())
@@ -136,14 +136,13 @@ class SyncService {
         }
     }
 
-    def void addTaskListMapping(String calId, String gTaskListId) {
+    void addTaskListMapping(String calId, String gTaskListId) {
         if (!this.tasksList.containsKey(calId)) {
             this.tasksList[calId] = gTaskListId
         }
     }
 
-    def static Long parseRFC_3339Date(String dateTimeRfc3339) {
-
+    static Long parseRFC_3339Date(String dateTimeRfc3339) {
         String RFC_3339_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         DateTimeFormatter RFC_3339_FORMATTER = DateTimeFormatter
                 .ofPattern(RFC_3339_PATTERN)
@@ -152,7 +151,7 @@ class SyncService {
         return theDateTime.toInstant().toEpochMilli() * 1000
     }
 
-    def static ZonedDateTime getOldEnoughDate() {
+    static ZonedDateTime getOldEnoughDate() {
         String date = "1990-01-01";
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate localDate = LocalDate.parse(date, f);

@@ -10,6 +10,7 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.tasks.TasksScopes
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
 @Component
@@ -19,16 +20,23 @@ class GoogleAuthorization {
 
     NetHttpTransport httpTransport
 
-    @Autowired
     GTaskConfig gTaskConfig
 
-    static final File DATA_STORE_DIR =
-            new File(System.getProperty("user.home"), "/var/kanban-hub")
+    String thunderbirdProfilePath
+
+    final File dataStoreDir =
+            new File(thunderbirdProfilePath)
 
     Integer port = 7100
 
+    @Autowired
+    GoogleAuthorization(GTaskConfig gTaskConfig, @Qualifier("thunderbirdProfilePath")
+            String thunderbirdProfilePath) {
+        this.gTaskConfig = gTaskConfig
+        this.thunderbirdProfilePath = thunderbirdProfilePath
+    }
 
-    def Credential authorize() throws Exception {
+    Credential authorize() throws Exception {
         GoogleClientSecrets clientSecrets = new GoogleClientSecrets()
         clientSecrets.setInstalled(new GoogleClientSecrets.Details().setClientId(gTaskConfig.clientId)
                 .setClientSecret(gTaskConfig.clientKey))
@@ -37,12 +45,13 @@ class GoogleAuthorization {
                 Collections.singleton(TasksScopes.TASKS_READONLY)).setDataStoreFactory(
                 dataStoreFactory).build()
         // authorize
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setPort(7100).build()).authorize("user");
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setPort(port).build())
+                .authorize("user");
     }
 
-    def Credential main() throws Exception {
+    Credential main() throws Exception {
         httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
+        dataStoreFactory = new FileDataStoreFactory(dataStoreDir);
         // authorization
         return authorize();
     }

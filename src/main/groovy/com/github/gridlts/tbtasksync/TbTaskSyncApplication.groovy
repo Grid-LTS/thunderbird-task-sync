@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 @SpringBootApplication
 class TbTaskSyncApplication {
 
-	static void main( String[] args) {
-		SpringApplication.run(TbTaskSyncApplication, args)
-	}
+    static void main(String[] args) {
+        SpringApplication.run(TbTaskSyncApplication, args)
+    }
 
 }

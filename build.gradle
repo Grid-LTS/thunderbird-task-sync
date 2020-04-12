@@ -13,20 +13,21 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.grails:gorm-hibernate5-spring-boot:7.0.2.RELEASE'
-	implementation 'org.xerial:sqlite-jdbc:3.25.2'
-	implementation 'com.github.gwenn:sqlite-dialect:0.1.0'
+	implementation  "org.apache.commons:commons-lang3:3.10"
+	implementation "org.grails:gorm-hibernate5-spring-boot:7.0.2.RELEASE"
+	implementation "org.xerial:sqlite-jdbc:3.25.2"
+	implementation "com.github.gwenn:sqlite-dialect:0.1.0"
 	implementation "org.hibernate:hibernate-core"
 	implementation "org.hibernate:hibernate-ehcache"
-	implementation 'org.codehaus.groovy:groovy'
+	implementation "org.codehaus.groovy:groovy"
 	implementation "com.google.http-client:google-http-client-jackson2:1.34.2"
 	implementation "com.google.oauth-client:google-oauth-client-jetty:1.30.6"
 	implementation "com.google.apis:google-api-services-tasks:v1-rev58-1.25.0"
 	implementation "org.apache.commons:commons-lang3:3.9"
-	compile 'org.yaml:snakeyaml:1.26'
-	compile 'com.zaxxer:HikariCP:3.4.2'
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	compile "org.yaml:snakeyaml:1.26"
+	compile "com.zaxxer:HikariCP:3.4.2"
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude group: "org.junit.vintage", module: "junit-vintage-engine"
 	}
 }
 

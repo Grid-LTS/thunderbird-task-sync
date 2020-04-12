@@ -33,9 +33,9 @@ class GTaskRepo {
     GTaskRepo() {
     }
 
-    def void init(String accessToken) throws IOException, GeneralSecurityException {
+    void init(String accessToken) throws IOException, GeneralSecurityException {
         if (this.tasksService == null ||
-                !this.accessToken.equals(accessToken.substring(7))) {
+                !this.accessToken.equals(accessToken)) {
             this.accessToken  = accessToken
             GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -45,12 +45,12 @@ class GTaskRepo {
         }
     }
 
-    def List<TaskList> getTaskLists(String accessToken) throws IOException, GeneralSecurityException {
+    List<TaskList> getTaskLists(String accessToken) throws IOException, GeneralSecurityException {
         this.init(accessToken)
         return this.getTaskLists()
     }
 
-    def List<TaskList> getTaskLists() throws IOException {
+    List<TaskList> getTaskLists() throws IOException {
         TaskLists result = this.tasksService.tasklists().list()
                 .setMaxResults(10L)
                 .execute()
@@ -61,13 +61,13 @@ class GTaskRepo {
         return taskLists
     }
 
-    def List<Task> getTasksForTaskListEntry(String taskListId, String accessToken)
+    List<Task> getTasksForTaskListEntry(String taskListId, String accessToken)
             throws IOException, GeneralSecurityException {
         this.init(accessToken)
         return this.getOpenTasksForTaskList(taskListId)
     }
 
-    def List<Task> getOpenTasksForTaskList(String taskListId)
+    List<Task> getOpenTasksForTaskList(String taskListId)
             throws IOException {
         com.google.api.services.tasks.model.Tasks result = this.tasksService.tasks().list(taskListId)
                 .setMaxResults(MAX_RESULTS)
@@ -80,7 +80,7 @@ class GTaskRepo {
         return tasksForTaskList
     }
 
-    def List<Task> getDeletedTasksForTaskList(String taskListId)
+    List<Task> getDeletedTasksForTaskList(String taskListId)
             throws IOException {
         com.google.api.services.tasks.model.Tasks result = this.tasksService.tasks().list(taskListId)
                 .setMaxResults(MAX_RESULTS)
@@ -94,11 +94,11 @@ class GTaskRepo {
         return tasksForTaskList
     }
 
-    def Task queryTask(String taskListId, String taskId) {
+    Task queryTask(String taskListId, String taskId) {
         return this.tasksService.tasks().get(taskListId, taskId).execute()
     }
 
-    def List<Task> getCompletedTasksForTaskList(String taskListId, ZonedDateTime newerThanDateTime)
+    List<Task> getCompletedTasksForTaskList(String taskListId, ZonedDateTime newerThanDateTime)
             throws IOException {
         com.google.api.services.tasks.model.Tasks result = this.tasksService.tasks().list(taskListId)
                 .setMaxResults(MAX_RESULTS)
@@ -113,7 +113,7 @@ class GTaskRepo {
         return tasksForTaskList;
     }
 
-    def static String convertZoneDateTimeToRFC3339Timestamp(ZonedDateTime zonedDateTime) {
+    static String convertZoneDateTimeToRFC3339Timestamp(ZonedDateTime zonedDateTime) {
         return zonedDateTime.format(RFC_3339_FORMATTER)
     }
 }
