@@ -109,6 +109,7 @@ class SyncService {
                 def savedTask = TaskEntity.findById(it.getId())
                 if (savedTask != null) {
                     counter.deleted++
+                    println("Task ${savedTask.title} was marked as deleted, but was not deleted")
                     savedTask.delete(flush: true)
                 }
             }

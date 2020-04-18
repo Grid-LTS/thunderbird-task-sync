@@ -2,13 +2,8 @@ spring:
   main:
     web-application-type: NONE
   datasource:
-    driverClassName: org.sqlite.JDBC
     username: ""
     password: ""
 
-hibernate:
-  hbm2ddl:
-    auto: none
-  dialect: org.hibernate.dialect.SQLiteDialect
 
 

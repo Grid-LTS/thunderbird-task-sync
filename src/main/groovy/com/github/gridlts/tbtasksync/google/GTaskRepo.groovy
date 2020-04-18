@@ -9,6 +9,7 @@ import com.google.api.services.tasks.Tasks
 import com.google.api.services.tasks.model.Task
 import com.google.api.services.tasks.model.TaskList
 import com.google.api.services.tasks.model.TaskLists
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
 import java.security.GeneralSecurityException
@@ -17,6 +18,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Service
+@Profile("!test") // needs to be mocked
 class GTaskRepo {
 
     static Long MAX_RESULTS = 10000L
