@@ -70,20 +70,22 @@ class SyncService {
         if (duplicates.size() == 1) {
             return
         }
+        // keep task is the task that is not discarded
         TaskEntity keepTask = duplicates.find { it.id == task.getId() }
         if (!keepTask) {
             return
         }
+        // ensure that the keep task is not marked as duplicate (and therefore eventually deleted)
         if (duplicatesMap.containsKey(keepTask.id)) {
             duplicatesMap.remove(keepTask.id)
             return
         }
-        // obvious duplicates
+        // obvious duplicates (not identicals)
         def obvious = duplicates.findAll { it.id != keepTask.id }
         obvious.forEach {
             duplicatesMap[it.id] = it
         }
-        // find max
+        // find newest if multiple tasks with the same id exist
         def identicals = duplicates.findAll { it.id == keepTask.id }
         long maxTime = identicals.collect { it.timeCreated }.max()
         identicals.findAll { it.timeCreated != maxTime }.forEach {

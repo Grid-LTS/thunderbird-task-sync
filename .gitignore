@@ -7,7 +7,7 @@ build/
 
 ### Config files ###
 **/client_secrets.json
-**/google.properties
+src/main/resources/google.properties
 **/application-default.yml
 
 ### STS ###
