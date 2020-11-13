@@ -41,7 +41,7 @@ class Description implements Serializable {
         if (!(other instanceof Description)) {
             return false
         }
-        Description that = (Description) other;
+        Description that = (Description) other
         return new EqualsBuilder()
                 .append(this.calId, that.calId)
                 .append(this.task, that.task)

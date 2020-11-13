@@ -24,3 +24,21 @@ to `google.properties` and add properties
 java -jar build/libs/tbtasksync*.jar 
 ```
 
+### Troubleshooting
+```
+ [SQLITE_CORRUPT]  The database disk image is malformed (database disk image is malformed)
+```
+Your SQLite database might be corrupted.
+Reasons for corruption can be checked with
+```
+PRAGMA identity_check
+```
+__Solution__  
+Export database dump and reimport database
+```bash
+# create backup
+mv cache.sqlite cache.sqlite.bkp
+sqlite3 cache.sqlite.bkp ".dump" | sqlite3 cache.sqlite
+```
+
+

@@ -22,8 +22,8 @@ class TaskEntity implements Serializable {
     Integer recurrenceIdTz
     String recurrenceId
 
-    static hasMany = [descriptions: Description]
-    static mappedBy = [description: "task"]
+    static hasMany = [descriptions: Description, properties: CalProperties]
+    static mappedBy = [descriptions: "task", properties: "task"]
     static fetchMode = [description: 'eager']
     static mapping = {
         table  "cal_todos"
