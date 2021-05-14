@@ -97,8 +97,19 @@ class SyncService {
     void syncTasks(String taskListId) {
         List<Task> openTasks = gTaskRepo.getOpenTasksForTaskList(taskListId)
         if (openTasks.size() > 0) {
-            def firstTask = TaskEntity.findById(openTasks[0].getId())
-            addTaskListMapping(firstTask.calId, taskListId)
+            def start = 0;
+            while (start < openTasks.size()) {
+                def firstTask = TaskEntity.findById(openTasks[start].getId())
+                if (firstTask == null){
+                    start++
+                    if (start == openTasks.size()){
+                        return
+                    }
+                    continue
+                }
+                addTaskListMapping(firstTask.calId, taskListId)
+                break
+            }
         }
         openTasks.forEach {
             removeDuplicates(it)
