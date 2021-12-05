@@ -1,12 +1,12 @@
 plugins {
-	id 'org.springframework.boot' version '2.2.5.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'org.springframework.boot' version '2.6.1'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'groovy'
 }
 
 group = 'com.github.gridlts'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 repositories {
 	mavenCentral()
@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
 	implementation  "org.apache.commons:commons-lang3:3.10"
-	implementation "org.grails:gorm-hibernate5-spring-boot:7.0.2.RELEASE"
+	implementation "org.grails:gorm-hibernate5-spring-boot:7.1.0"
 	implementation "org.xerial:sqlite-jdbc:3.25.2"
 	implementation "com.github.gwenn:sqlite-dialect:0.1.0"
 	implementation "org.hibernate:hibernate-core"
@@ -24,8 +24,8 @@ dependencies {
 	implementation "com.google.oauth-client:google-oauth-client-jetty:1.30.6"
 	implementation "com.google.apis:google-api-services-tasks:v1-rev58-1.25.0"
 	implementation "org.apache.commons:commons-lang3:3.9"
-	compile "org.yaml:snakeyaml:1.26"
-	compile "com.zaxxer:HikariCP:3.4.2"
+	implementation "org.yaml:snakeyaml:1.26"
+	implementation "com.zaxxer:HikariCP:3.4.2"
 	testImplementation "com.h2database:h2:1.4.200"
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude group: "org.junit.vintage", module: "junit-vintage-engine"
