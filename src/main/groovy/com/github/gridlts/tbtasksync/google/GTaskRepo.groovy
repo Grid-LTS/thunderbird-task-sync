@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 @Profile("!test") // needs to be mocked
 class GTaskRepo {
 
-    static Long MAX_RESULTS = 10000L
+    static int MAX_RESULTS = 10000
 
     final static DateTimeFormatter RFC_3339_FORMATTER = DateTimeFormatter
             .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -54,7 +54,7 @@ class GTaskRepo {
 
     List<TaskList> getTaskLists() throws IOException {
         TaskLists result = this.tasksService.tasklists().list()
-                .setMaxResults(10L)
+                .setMaxResults(10)
                 .execute()
         List<TaskList> taskLists = result.getItems()
         if (taskLists == null) {

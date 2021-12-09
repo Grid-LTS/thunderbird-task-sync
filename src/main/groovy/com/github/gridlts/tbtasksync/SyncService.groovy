@@ -123,6 +123,8 @@ class SyncService {
                 if (savedTask != null) {
                     counter.deleted++
                     println("Task ${savedTask.title} was marked as deleted, but was not deleted")
+                    // Todo catch exception regarding Batch update returned unexpected row count from update [0]; actual row count: 2; expected: 1
+                    // and delete via SQL
                     savedTask.delete(flush: true)
                 }
             }

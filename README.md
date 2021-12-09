@@ -17,7 +17,7 @@ to `application-default.yml` and add properties
 to `google.properties` and add properties
 * create jar
 ```
-./gradlew jar
+./gradlew bootJar
 ```
 * run
 ```
