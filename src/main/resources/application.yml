@@ -4,6 +4,8 @@ spring:
   datasource:
     username: ""
     password: ""
-
-
+  jpa:
+    database-platform: org.hibernate.dialect.SQLiteDialect
+    show-sql: false
+    hibernate.ddl-auto: none
 

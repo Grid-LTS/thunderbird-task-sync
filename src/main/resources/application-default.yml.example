@@ -1,7 +1,2 @@
-hibernate:
-  hbm2ddl:
-    auto: none
-  dialect: org.hibernate.dialect.SQLiteDialect
-
 thunderbird:
   profile: <thunderbird profile <7 alphanumeric>.default
