@@ -143,7 +143,8 @@ class SyncService {
                 }
                 if (savedTask.status != CalStatus.COMPLETED) {
                     savedTask.status = CalStatus.COMPLETED
-                    savedTask.timeCompleted = parseRFC_3339Date(it.getCompleted().toStringRfc3339())
+
+                    savedTask.timeCompleted = parseRFC_3339Date(it.getCompleted())
                     savedTask.save(flush: true)
                     counter.completed++
                 }
