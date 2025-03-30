@@ -5,14 +5,11 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 
 @Component
-public class TbTaskSyncRunner implements CommandLineRunner {
+class TbTaskSyncRunner @Autowired constructor(
+    private val syncService: SyncService
+) : CommandLineRunner {
 
-    @Autowired
-    SyncService syncService;
-
-
-    @Override
-    void run(String... args) {
+    override fun run(vararg args: String?) {
         syncService.sync()
     }
 }
