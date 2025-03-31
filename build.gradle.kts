@@ -17,7 +17,7 @@ repositories {
 
 
 tasks.bootJar {
-	mainClass = "com.github.gridlts.tbtasksync.TbTaskSyncApplication"
+	mainClass = "com.github.gridlts.tbtasksync.TbTaskSyncApplicationKt"
 	enabled = true
 }
 tasks.jar {enabled = false}
