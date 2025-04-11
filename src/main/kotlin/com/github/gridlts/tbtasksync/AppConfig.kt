@@ -8,11 +8,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.core.env.Environment
+import java.nio.file.Path
 import javax.sql.DataSource
+import java.nio.file.Paths
 
 @Configuration
 class AppConfig {
-
     @Value("\${thunderbird.profile}")
     private lateinit var thunderbirdProfile: String
 
@@ -20,23 +21,26 @@ class AppConfig {
     private lateinit var env: Environment
 
     @Bean
-    fun thunderbirdProfilePath(): String {
+    fun thunderbirdProfilePath(): Path {
         return if (env.activeProfiles.contains("test")) {
-            "${System.getProperty("user.dir")}/tmp"
+            Paths.get(System.getProperty("user.dir"),"tmp")
         } else {
-            val thunderbirdProfileParentDir = if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-                "Library/Thunderbird/Profiles"
+            var osName = System.getProperty("os.name").lowercase()
+            val thunderbirdProfileParentDir = if (osName.contains("mac")) {
+                Paths.get(System.getProperty("user.home"),"Library","Thunderbird", "Profiles")
+            } else if (osName.startsWith("windows")) {
+                Paths.get(System.getenv("appdata"),"Thunderbird", "Profiles")
             } else {
-                ".thunderbird"
+                Paths.get(System.getProperty("user.home"), ".thunderbird")
             }
-            "${System.getProperty("user.home")}/$thunderbirdProfileParentDir/$thunderbirdProfile"
+            thunderbirdProfileParentDir.resolve(thunderbirdProfile)
         }
     }
 
     @Bean
     @Profile("!test")
-    fun getDataSource(@Qualifier("thunderbirdProfilePath") thunderbirdProfilePath: String): DataSource {
-        val url = "jdbc:sqlite:file:$thunderbirdProfilePath/calendar-data/cache.sqlite"
+    fun getDataSource(@Qualifier("thunderbirdProfilePath") thunderbirdProfilePath: Path): DataSource {
+        val url = "jdbc:sqlite:file:${thunderbirdProfilePath.toUri().path}/calendar-data/cache.sqlite"
         return DataSourceBuilder.create().url(url).build()
     }
 }

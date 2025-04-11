@@ -44,11 +44,18 @@ tasks.withType<KotlinCompile> {
 		freeCompilerArgs += "-Xjsr305=strict"
 		jvmTarget = "21"
 	}
+
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
 kotlin {
 	jvmToolchain(21)
+	sourceSets {
+		main.get().kotlin.srcDirs("src/main/kotlin")
+		test.get().kotlin.srcDirs("src/test/kotlin")
+	}
 }
+

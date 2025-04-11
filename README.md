@@ -17,11 +17,15 @@ to `application-default.yml` and add properties
 to `google.properties` and add properties
 * create jar
 ```
-./gradlew bootJar
+./gradlew clean bootJar
 ```
 * run
 ```
 java -jar build/libs/tbtasksync*.jar 
+```
+on Windows
+```
+java -jar  $(ls build\libs\tbtasksync*.jar | % {$_.FullName}) 
 ```
 
 ### Troubleshooting

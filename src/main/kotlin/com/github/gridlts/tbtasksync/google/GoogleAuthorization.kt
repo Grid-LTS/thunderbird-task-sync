@@ -13,17 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
-import java.io.File
+import java.nio.file.Path
 
 @Component
 @Profile("!test")
 class GoogleAuthorization @Autowired constructor(private val gTaskConfig : GTaskConfig,
                            @Qualifier("thunderbirdProfilePath")
-                           private val  thunderbirdProfilePath : String) {
+                           private val  thunderbirdProfilePath : Path) {
 
     var dataStoreFactory : FileDataStoreFactory? = null
     var httpTransport : NetHttpTransport? = null
-    val dataStoreDir : File = File(thunderbirdProfilePath)
 
     val port : Int = 7100
 
@@ -48,7 +47,7 @@ class GoogleAuthorization @Autowired constructor(private val gTaskConfig : GTask
     // throws Exception
     fun main() : Credential {
         httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        dataStoreFactory = FileDataStoreFactory(dataStoreDir);
+        dataStoreFactory = FileDataStoreFactory(thunderbirdProfilePath.toFile());
         // authorization
         return authorize();
     }
