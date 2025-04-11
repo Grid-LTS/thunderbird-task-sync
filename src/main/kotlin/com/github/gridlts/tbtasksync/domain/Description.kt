@@ -44,6 +44,10 @@ data class Description(
     }
 
     override fun hashCode(): Int = java.util.Objects.hash(calId)
+
+    override fun toString(): String {
+        return "Description(id=$id, calId='$calId', recurrenceId=$recurrenceId, recurrenceIdTz=$recurrenceIdTz, value='$value')"
+    }
 }
 
 @Embeddable
@@ -58,4 +62,8 @@ data class DescriptionId(
 ) : Serializable {
     // No-arg constructor
     constructor() : this(task = TaskEntity(), propertiesKey = CalPropertiesKey.DESCRIPTION)
+
+    override fun toString(): String {
+        return "DescriptionId(task=${task.id}, propertiesKey=$propertiesKey)"
+    }
 }

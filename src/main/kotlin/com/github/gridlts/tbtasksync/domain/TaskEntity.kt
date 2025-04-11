@@ -47,10 +47,10 @@ data class TaskEntity(
     @Column(name = "recurrence_id")
     val recurrenceId: String? = null,
 
-    @OneToMany(mappedBy = "id.task", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "id.task", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
     val descriptions: List<Description>? = null,
 
-    @OneToMany(mappedBy = "id.task", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "id.task", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     val properties: List<CalProperties>? = null
 ) : Serializable {
 
@@ -73,6 +73,10 @@ data class TaskEntity(
 
     fun isDeleted(): Boolean {
         return status == CalStatus.DELETED
+    }
+
+    override fun toString(): String {
+        return "TaskEntity(id='$id', calId='$calId', timeCreated=$timeCreated, timeModified=$timeModified, timeCompleted=$timeCompleted, timeDue=$timeDue, flags=$flags, title='$title', status=$status, toDoCompletedTz=$toDoCompletedTz, recurrenceIdTz=$recurrenceIdTz, recurrenceId=$recurrenceId, descriptions=$descriptions, properties=$properties)"
     }
 
     override fun equals(other: Any?): Boolean {

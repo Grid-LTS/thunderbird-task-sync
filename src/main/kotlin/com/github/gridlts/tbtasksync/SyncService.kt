@@ -27,6 +27,7 @@ class SyncService(
     private val savedTasksMap = mutableMapOf<String, TaskEntity>()
     private val tasksList = mutableMapOf<String, String>()
 
+    @Transactional
     fun sync() {
         taskEntityRepository.findAll().forEach {
             savedTasksMap[it.id] = it
@@ -40,7 +41,7 @@ class SyncService(
         }
         duplicatesMap.forEach { (_, value) ->
             println(value)
-            taskEntityRepository.deleteByIdCalIdAndTimeCreated(value.id, value.calId, value.timeCreated)
+            deleteTask(value)
             counter[CalStatus.DUPLICATE] = counter[CalStatus.DUPLICATE]!! + 1
         }
         println("Found ${counter[CalStatus.DELETED]} tasks that were not deleted.")
@@ -53,32 +54,11 @@ class SyncService(
         println("Found ${obsoleteTasks.size} that are not available upstream and are deleted.")
         obsoleteTasks.forEach {
             println(it.title)
-            taskEntityRepository.delete(it)
+            deleteTask(it)
         }
     }
 
-    fun removeDuplicates(task: Task) {
-        val duplicates = taskEntityRepository.findByTitle(task.title)
-        if (duplicates.size == 1) {
-            return
-        }
-        val keepTask = duplicates.find { it.id == task.id } ?: return
-        if (duplicatesMap.containsKey(keepTask.id)) {
-            duplicatesMap.remove(keepTask.id)
-            return
-        }
-        val obvious = duplicates.filter { it.id != keepTask.id }
-        obvious.forEach {
-            duplicatesMap[it.id] = it
-        }
-        val identicals = duplicates.filter { it.id == keepTask.id }
-        val maxTime = identicals.map { it.timeCreated }.maxOrNull() ?: return
-        identicals.filter { it.timeCreated != maxTime }.forEach {
-            duplicatesMap[it.id] = it
-        }
-    }
 
-    @Transactional
     fun syncTasks(taskListId: String) {
         val openTasks = gTaskRepo.getOpenTasksForTaskList(taskListId)
         if (openTasks.isNotEmpty()) {
@@ -132,6 +112,31 @@ class SyncService(
                 removeDuplicates(it)
             }
         }
+    }
+
+    fun removeDuplicates(task: Task) {
+        val duplicates = taskEntityRepository.findByTitle(task.title)
+        if (duplicates.size == 1) {
+            return
+        }
+        val keepTask = duplicates.find { it.id == task.id } ?: return
+        if (duplicatesMap.containsKey(keepTask.id)) {
+            duplicatesMap.remove(keepTask.id)
+            return
+        }
+        val obvious = duplicates.filter { it.id != keepTask.id }
+        obvious.forEach {
+            duplicatesMap[it.id] = it
+        }
+        val identicals = duplicates.filter { it.id == keepTask.id }
+        val maxTime = identicals.map { it.timeCreated }.maxOrNull() ?: return
+        identicals.filter { it.timeCreated != maxTime }.forEach {
+            duplicatesMap[it.id] = it
+        }
+    }
+
+    fun deleteTask(task: TaskEntity) {
+        taskEntityRepository.deleteByIdCalIdAndTimeCreated(task.id, task.calId, task.timeCreated)
     }
 
     fun addTaskListMapping(calId: String, gTaskListId: String) {

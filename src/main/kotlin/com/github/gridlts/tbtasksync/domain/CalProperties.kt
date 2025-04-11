@@ -42,6 +42,11 @@ data class CalProperties(
     }
 
     override fun hashCode(): Int = java.util.Objects.hash(calId)
+
+    override fun toString(): String {
+        return "CalProperties(id=$id, calId='$calId', recurrenceId=$recurrenceId, recurrenceIdTz=$recurrenceIdTz, propertiesValue='$propertiesValue')"
+    }
+
 }
 
 @Embeddable
@@ -55,5 +60,9 @@ data class CalPropertiesId(
     val propertiesKey: CalPropertiesKey
 ) : Serializable {
     constructor() : this(task = TaskEntity(), propertiesKey = CalPropertiesKey.DESCRIPTION)
+
+    override fun toString(): String {
+        return "CalPropertiesId(task=${task.id}, propertiesKey=$propertiesKey)"
+    }
 
 }
