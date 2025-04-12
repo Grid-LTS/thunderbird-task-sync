@@ -1,0 +1,7 @@
+thunderbird:
+  profile: "testing.default"
+
+user:
+  home: "classpath:/."
+
+appdata: classpath:/.

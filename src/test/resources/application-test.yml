@@ -11,3 +11,6 @@ spring:
 
 thunderbird:
   profile: "testing.default"
+
+user:
+  home: "tmp"
