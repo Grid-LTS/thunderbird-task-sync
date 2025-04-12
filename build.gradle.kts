@@ -36,6 +36,9 @@ dependencies {
 	testImplementation("com.h2database:h2:2.0.202")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation(kotlin("stdlib-jdk8"))
+	testImplementation("io.mockk:mockk:1.13.5")
+	testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+	testImplementation("org.assertj:assertj-core:3.24.2")
 }
 
 

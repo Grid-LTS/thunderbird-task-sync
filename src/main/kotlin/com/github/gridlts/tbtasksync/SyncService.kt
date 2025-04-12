@@ -136,7 +136,7 @@ class SyncService(
     }
 
     fun deleteTask(task: TaskEntity) {
-        taskEntityRepository.deleteByIdCalIdAndTimeCreated(task.id, task.calId, task.timeCreated)
+        taskEntityRepository.delete(task)
     }
 
     fun addTaskListMapping(calId: String, gTaskListId: String) {

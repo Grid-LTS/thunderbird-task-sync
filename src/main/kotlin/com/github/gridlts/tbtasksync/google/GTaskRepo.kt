@@ -9,6 +9,7 @@ import com.google.api.services.tasks.Tasks
 import com.google.api.services.tasks.model.Task
 import com.google.api.services.tasks.model.TaskList
 import com.google.api.services.tasks.model.TaskLists
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
@@ -34,13 +35,12 @@ class GTaskRepo () {
         val APPLICATION_NAME : String = "Thunderbird Task Sync"
     }
 
-    lateinit var tasksService : Tasks
-    lateinit var accessToken : String
+    var tasksService : Tasks? = null
+    var accessToken : String? = null
 
     // throws IOException, GeneralSecurityException
     fun init(accessToken : String)  {
-        if (!::tasksService.isInitialized ||
-                !this.accessToken.equals(accessToken)) {
+        if (tasksService == null || this.accessToken != accessToken) {
             this.accessToken  = accessToken
             val credential : GoogleCredential = GoogleCredential().setAccessToken(accessToken);
             val HTTP_TRANSPORT : NetHttpTransport = GoogleNetHttpTransport.newTrustedTransport();
@@ -58,7 +58,7 @@ class GTaskRepo () {
 
     //  throws IOException
     fun getTaskLists() : List<TaskList>  {
-        val result : TaskLists = this.tasksService.tasklists().list()
+        val result : TaskLists = this.tasksService!!.tasklists().list()
                 .setMaxResults(10)
                 .execute()
         var taskLists : List<TaskList> = result.getItems()
@@ -78,7 +78,7 @@ class GTaskRepo () {
     // throws IOException
     fun getOpenTasksForTaskList(taskListId : String) : List<Task>
      {
-        val result : com.google.api.services.tasks.model.Tasks = this.tasksService.tasks().list(taskListId)
+        val result : com.google.api.services.tasks.model.Tasks = this.tasksService!!.tasks().list(taskListId)
                 .setMaxResults(MAX_RESULTS)
                 .setShowCompleted(false)
                 .execute()
@@ -91,7 +91,7 @@ class GTaskRepo () {
 
     // throws IOException
     fun getDeletedTasksForTaskList(taskListId : String) : List<Task> {
-        val result : com.google.api.services.tasks.model.Tasks = this.tasksService.tasks().list(taskListId)
+        val result : com.google.api.services.tasks.model.Tasks = this.tasksService!!.tasks().list(taskListId)
                 .setMaxResults(MAX_RESULTS)
                 .setShowCompleted(false)
                 .setShowDeleted(true)
@@ -104,7 +104,7 @@ class GTaskRepo () {
     }
 
     fun queryTask( taskListId : String, taskId : String) : Task{
-        return this.tasksService.tasks().get(taskListId, taskId).execute()
+        return this.tasksService!!.tasks().get(taskListId, taskId).execute()
     }
 
     // throws IOException
@@ -112,7 +112,7 @@ class GTaskRepo () {
     fun getCompletedTasksForTaskList(taskListId : String , newerThanDateTime: ZonedDateTime ) :
     List<Task> {
         val result : com.google.api.services.tasks.model.Tasks =
-            this.tasksService.tasks().list(taskListId)
+            this.tasksService!!.tasks().list(taskListId)
                 .setMaxResults(MAX_RESULTS)
                 .setCompletedMin(convertZoneDateTimeToRFC3339Timestamp(newerThanDateTime))
                 .setShowCompleted(true)
